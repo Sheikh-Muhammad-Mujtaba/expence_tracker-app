@@ -72,7 +72,7 @@ export default function ExpenseTrackerComponent() {
 
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [budget, setBudget] = useState<number>(1000); // Set an initial budget
+    const [budget, setBudget] = useState<number>(0); // Set an initial budget
 
     // function to handle filter
     const filteredExpenses = expenses.filter((expense) =>
@@ -83,6 +83,8 @@ export default function ExpenseTrackerComponent() {
     // useEffect to load expenses from local storage or set initial expenses
     useEffect(() => {
         const storedExpenses = localStorage.getItem("expenses");
+        const storedBudget = localStorage.getItem("budget");
+
         if (storedExpenses) {
             setExpenses(
                 JSON.parse(storedExpenses).map((expense: Expense) => ({
@@ -93,14 +95,25 @@ export default function ExpenseTrackerComponent() {
         } else {
             setExpenses(initialExpenses);
         }
+        if (storedBudget) {
+            setBudget(parseFloat(storedBudget)); // Set the budget if it exists
+        }
     }, []);
 
     // useEffect to store expenses in local storage whenever they change
     useEffect(() => {
         if (expenses.length > 0) {
             localStorage.setItem("expenses", JSON.stringify(expenses));
-        }
+        }  
     }, [expenses]);
+
+    useEffect(() => {
+        if (budget > 0) {
+        localStorage.setItem("budget", budget.toString());
+        }
+    }, [budget]);
+
+    
 
     // Function to handle adding a new expense
     const handleAddExpense = (): void => {
@@ -190,7 +203,7 @@ export default function ExpenseTrackerComponent() {
             {/* Header section */}
             <header className="bg-primary text-primary-foreground py-4 px-6 shadow">
                 <div className="flex justify-between items-center">
-                    <h1 className="text-2xl font-bold">Expense Tracker</h1>
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">Expense Tracker</h1>
                     
 
                     <Input
@@ -203,10 +216,10 @@ export default function ExpenseTrackerComponent() {
                 </div>
             </header>
             {/* Main section */}
-            <main className="flex-1 overflow-y-auto p-6">
+            <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
                 <ul className="space-y-4">
                     {filteredExpenses.map((expense) => (
-                        <li key={expense.id} className="bg-card p-4 rounded-lg shadow flex justify-between items-center">
+                        <li key={expense.id} className="bg-card p-4 rounded-lg shadow flex flex-col md:flex-row justify-between items-center">
                             <div>
                                 <h3 className="text-lg font-medium">{expense.name}</h3>
                                 <p className="text-muted-foreground">
@@ -248,7 +261,7 @@ export default function ExpenseTrackerComponent() {
             </footer>
             {/* Modal dialog for adding/editing expenses */}
             <Dialog open={showModal} onOpenChange={setShowModal}>
-                <DialogContent className="bg-card p-6 rounded-lg shadow w-full max-w-md">
+                <DialogContent className="bg-card p-4 sm:p-6 rounded-lg shadow w-full max-w-sm sm:max-w-md">
                     <DialogHeader>
                         <DialogTitle>
                             {isEditing ? "Edit Expense" : "Add Expense"}
